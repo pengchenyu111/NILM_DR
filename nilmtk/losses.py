@@ -3,6 +3,7 @@ import numpy as np
 
 
 def mae(app_gt, app_pred):
+    # 代表不同时刻实际值和预测值的平均差值
     return mean_absolute_error(app_gt, app_pred)
 
 
@@ -57,6 +58,12 @@ def nep(app_gt, app_pred):
     denominator = np.sum(app_gt)
     return numerator / denominator
 
+
+def sae(app_gt, app_pred):
+    # signal aggregate error  代表实际功率和预测功率之间差值的相对值
+    numerator = np.sum(np.abs(app_gt - app_pred))
+    denominator = np.sum(app_gt)
+    return numerator / denominator
 
 def mr(app_gt, app_pred):
     # match rate
