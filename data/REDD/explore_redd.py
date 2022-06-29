@@ -47,6 +47,13 @@ def show_top_k_appliance_each_building():
 
 
 def show_building_period_data(building_no, start, end):
+    """
+    绘制某个家庭某个时间段的电器使用情况
+    :param building_no:
+    :param start:
+    :param end:
+    :return:
+    """
     data.set_window(start=start, end=end)
     plt.figure(figsize=(30, 10))
     data.buildings[building_no].elec.plot()
@@ -57,5 +64,8 @@ def show_df():
     fridge_df = next(data.buildings[1].elec['washer dryer'].load())
     print(fridge_df.isna())
 
+
+# show_pie_appliance_enery_consumption()
+show_top_k_appliance_each_building()
 #show_building_period_data(building_no=1, start='2011-04-21', end='2011-04-22')
-show_df()
+#show_df()
