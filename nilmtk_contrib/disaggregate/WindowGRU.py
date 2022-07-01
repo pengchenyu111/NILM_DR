@@ -158,19 +158,17 @@ class WindowGRU(Disaggregator):
         return tchunk
 
     def return_network(self):
-        '''Creates the GRU architecture described in the paper
-        '''
         model = Sequential()
-        # 1D Conv
+        # 卷积层1
         model.add(Conv1D(16,4,activation='relu',input_shape=(self.sequence_length,1),padding="same",strides=1))
-        # Bi-directional GRUs
+        # 两层双向GRU
         model.add(Bidirectional(GRU(64, activation='relu',
                                     return_sequences=True), merge_mode='concat'))
         model.add(Dropout(0.5))
         model.add(Bidirectional(GRU(128, activation='relu',
                                     return_sequences=False), merge_mode='concat'))
         model.add(Dropout(0.5))
-        # Fully Connected Layers
+        # 全连接层
         model.add(Dense(128, activation='relu'))
         model.add(Dropout(0.5))
         model.add(Dense(1, activation='linear'))

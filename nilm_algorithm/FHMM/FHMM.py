@@ -1,5 +1,5 @@
+from nilmtk.disaggregate import FHMMExact, CO
 from nilmtk.api import API
-from nilmtk.disaggregate import CO
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -8,7 +8,9 @@ CO_experiment = {
     'power': {'mains': ['apparent', 'active'], 'appliance': ['apparent', 'active']},
     'sample_rate': 6,
     'appliances': ['microwave', 'fridge', 'dish washer', 'washer dryer', 'sockets', 'light'],
-    'methods': {"CO": CO({})},
+    'methods': {
+        "FHMM": FHMMExact({})
+    },
     'train': {
         'datasets': {
             'REDD': {
@@ -68,7 +70,7 @@ for col in appliances:
     # 如果有多种方法这里一起可以画出来
     for method in methods:
         pre_val = api_res.pred_overall.get(method)[col]
-        plt.plot(pre_val, color='steelblue', linestyle='-.', alpha=0.5, label=method)
+        plt.plot(pre_val, color='b',linestyle='-.', alpha=0.5, label=method)
     plt.style.use('ggplot')
     plt.xticks(rotation=45)
     plt.xlabel("Time")
@@ -77,22 +79,22 @@ for col in appliances:
     plt.legend(loc='upper left')
     plt.show()
 
-# 绘制各个指标结果图
-tick_label = metrics
-bar_width = 0.1
-x = np.arange(len(metrics))
-metrics_res = pd.concat([res_df for res_df in api_res.errors], axis=1)
-plt.figure(figsize=(20, 10))
-tt = metrics_res.loc[['microwave']].values
-for idx, appliance in enumerate(appliances):
-    app_metrics = metrics_res.loc[[appliance]].values.tolist()[0]
-    plt.bar(x + idx * bar_width, app_metrics, bar_width, color=colors_picker[idx % len(colors_picker)], align='center',
-            label=appliance, alpha=0.5)
-    for a, b in zip(x + idx * bar_width, app_metrics):
-        plt.text(a, b - 0.3, '%.3f' % b, ha='center', va='bottom', fontsize=8)
-plt.xticks(x + bar_width / 2, tick_label)
-plt.xlabel("metric")
-plt.ylabel("score")
-plt.title('disaggregate metrics result')
-plt.legend(loc='upper right')
-plt.show()
+# # 绘制各个指标结果图
+# tick_label = metrics
+# bar_width = 0.1
+# x = np.arange(len(metrics))
+# metrics_res = pd.concat([res_df for res_df in api_res.errors], axis=1)
+# plt.figure(figsize=(20, 10))
+# tt = metrics_res.loc[['microwave']].values
+# for idx, appliance in enumerate(appliances):
+#     app_metrics = metrics_res.loc[[appliance]].values.tolist()[0]
+#     plt.bar(x + idx * bar_width, app_metrics, bar_width, color=colors_picker[idx % len(colors_picker)], align='center',
+#             label=appliance, alpha=0.5)
+#     for a, b in zip(x + idx * bar_width, app_metrics):
+#         plt.text(a, b - 0.3, '%.3f' % b, ha='center', va='bottom',fontsize=8)
+# plt.xticks(x + bar_width / 2, tick_label)
+# plt.xlabel("metric")
+# plt.ylabel("score")
+# plt.title('disaggregate metrics result')
+# plt.legend(loc='upper right')
+# plt.show()

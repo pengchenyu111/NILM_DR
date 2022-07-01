@@ -109,7 +109,6 @@ class Seq2Point(Disaggregator):
         return test_predictions
 
     def return_network(self):
-        # Model architecture
         model = Sequential()
         model.add(Conv1D(30,10,activation="relu",input_shape=(self.sequence_length,1),strides=1))
         model.add(Conv1D(30, 8, activation='relu', strides=1))

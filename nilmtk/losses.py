@@ -1,5 +1,8 @@
 from sklearn.metrics import mean_squared_error, mean_absolute_error, f1_score, r2_score, mean_absolute_percentage_error
 import numpy as np
+import pandas as pd
+
+pd.set_option('display.float_format',lambda x : '%.4f' % x)
 
 
 def mae(app_gt, app_pred):
@@ -51,7 +54,6 @@ def nde(app_gt, app_pred):
 
 
 def nep(app_gt, app_pred):
-    # 同SAE
     # Normalized Error in Assigned Power (NEP)
     # Inspired by https://www.springer.com/gp/book/9783030307813
     numerator = np.sum(np.abs(app_gt - app_pred))
@@ -61,7 +63,7 @@ def nep(app_gt, app_pred):
 
 def sae(app_gt, app_pred):
     # signal aggregate error  代表实际功率和预测功率之间差值的相对值
-    numerator = np.sum(np.abs(app_gt - app_pred))
+    numerator = np.abs(np.sum(app_gt) - np.sum(app_pred))
     denominator = np.sum(app_gt)
     return numerator / denominator
 
