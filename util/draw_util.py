@@ -2,6 +2,9 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
 
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+
 colors_picker = ["#377eb8", "#ff7f00", "#4daf4a", "#f781bf", "#a65628", "#984ea3", "#999999", "#e41a1c", "#dede00"]
 
 
@@ -79,3 +82,48 @@ def draw_metrics(methods, appliances, metrics, errors):
         plt.title(metric.upper())
         plt.legend(loc='upper right')
         plt.show()
+
+
+def show_building_period_data(data, building_no, start, end):
+    """
+    绘制某个家庭某个时间段的电器使用情况
+    :param building_no:
+    :param start:
+    :param end:
+    :return:
+    """
+    data.set_window(start=start, end=end)
+    plt.figure(figsize=(30, 10))
+    data.buildings[building_no].elec.plot()
+    plt.xlabel("Time")
+    plt.show()
+
+
+def show_pie_appliance_enery_consumption(data, building_no):
+    """
+    展示一个家庭的电器耗电饼图
+    :param data:
+    :return:
+    """
+    elec = data.buildings[building_no].elec
+    fraction = elec.submeters().fraction_per_meter().dropna()
+    # 画图
+    labels = elec.get_labels(fraction.index)
+    plt.figure(figsize=(10, 10))
+    plt.title("building{}电器耗电分布图".format(building_no))
+    fraction.plot(kind='pie', labels=labels)
+    plt.show()
+
+
+def show_top_k_appliance_each_building(data, building_no, k):
+    """
+    查看building里的用电量排名前五的电器，便于选出公共的电器
+    注意building的序号是从1开始的
+    注意这里并不是按照从高到低排序的
+    :return:
+    """
+    appliance_list = data.buildings[building_no].elec.submeters().select_top_k(k=k).appliances
+    print("************building{}*************".format(building_no))
+    for appliance in appliance_list:
+        print("building[{}]----{}".format(building_no, appliance.identifier.type))
+
