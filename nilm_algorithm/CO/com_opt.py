@@ -47,8 +47,8 @@ CO_experiment_Dataport = {
                 'path': '../../data/DATAPORT/newyork/dataport_newyork_1s.h5',
                 'buildings': {
                     1: {
-                        'start_time': '2019-05-01',
-                        'end_time': '2019-05-30'
+                        'start_time': '2019-05-18',
+                        'end_time': '2019-06-01'
                     }
                 }
             }

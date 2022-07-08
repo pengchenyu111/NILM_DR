@@ -10,8 +10,10 @@ from tensorflow.keras.models import Sequential
 class SequenceLengthError(Exception):
     pass
 
+
 class ApplianceNotFoundError(Exception):
     pass
+
 
 class Seq2Point(Disaggregator):
 
@@ -23,15 +25,15 @@ class Seq2Point(Disaggregator):
         self.MODEL_NAME = "Seq2Point"
         self.models = OrderedDict()
         self.file_prefix = "{}-temp-weights".format(self.MODEL_NAME.lower())
-        self.chunk_wise_training = params.get('chunk_wise_training',False)
-        self.sequence_length = params.get('sequence_length',99)
-        self.n_epochs = params.get('n_epochs', 10 )
-        self.batch_size = params.get('batch_size',512)
-        self.appliance_params = params.get('appliance_params',{})
-        self.mains_mean = params.get('mains_mean',1800)
-        self.mains_std = params.get('mains_std',600)
-        if self.sequence_length%2==0:
-            print ("Sequence length should be odd!")
+        self.chunk_wise_training = params.get('chunk_wise_training', False)
+        self.sequence_length = params.get('sequence_length', 99)
+        self.n_epochs = params.get('n_epochs', 10)
+        self.batch_size = params.get('batch_size', 512)
+        self.appliance_params = params.get('appliance_params', {})
+        self.mains_mean = params.get('mains_mean', 1800)
+        self.mains_std = params.get('mains_std', 600)
+        if self.sequence_length % 2 == 0:
+            print("Sequence length should be odd!")
             raise (SequenceLengthError)
 
     def partial_fit(self, train_main, train_appliances, do_preprocessing=True, current_epoch=0, **load_kwargs):
@@ -69,21 +71,21 @@ class Seq2Point(Disaggregator):
                 if len(train_main) > 10:
                     # Do validation when you have sufficient samples
                     filepath = self.file_prefix + "-{}-epoch{}.h5".format(
-                            "_".join(appliance_name.split()),
-                            current_epoch,
+                        "_".join(appliance_name.split()),
+                        current_epoch,
                     )
-                    checkpoint = ModelCheckpoint(filepath,monitor='val_loss',verbose=1,save_best_only=True,mode='min')
+                    checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True,
+                                                 mode='min')
                     model.fit(
-                            train_main, power,
-                            validation_split=0.15,
-                            epochs=self.n_epochs,
-                            batch_size=self.batch_size,
-                            callbacks=[checkpoint],
+                        train_main, power,
+                        validation_split=0.15,
+                        epochs=self.n_epochs,
+                        batch_size=self.batch_size,
+                        callbacks=[checkpoint],
                     )
-                    model.load_weights(filepath)
+                    # model.load_weights(filepath)
 
-                    
-    def disaggregate_chunk(self,test_main_list,model=None,do_preprocessing=True):
+    def disaggregate_chunk(self, test_main_list, model=None, do_preprocessing=True):
         if model is not None:
             self.models = model
 
@@ -98,8 +100,9 @@ class Seq2Point(Disaggregator):
             test_main = test_main.reshape((-1, self.sequence_length, 1))
             disggregation_dict = {}
             for appliance in self.models:
-                prediction = self.models[appliance].predict(test_main,batch_size=self.batch_size)
-                prediction = self.appliance_params[appliance]['mean'] + prediction * self.appliance_params[appliance]['std']
+                prediction = self.models[appliance].predict(test_main, batch_size=self.batch_size)
+                prediction = self.appliance_params[appliance]['mean'] + prediction * self.appliance_params[appliance][
+                    'std']
                 valid_predictions = prediction.flatten()
                 valid_predictions = np.where(valid_predictions > 0, valid_predictions, 0)
                 df = pd.Series(valid_predictions)
@@ -110,7 +113,7 @@ class Seq2Point(Disaggregator):
 
     def return_network(self):
         model = Sequential()
-        model.add(Conv1D(30,10,activation="relu",input_shape=(self.sequence_length,1),strides=1))
+        model.add(Conv1D(30, 10, activation="relu", input_shape=(self.sequence_length, 1), strides=1))
         model.add(Conv1D(30, 8, activation='relu', strides=1))
         model.add(Conv1D(40, 6, activation='relu', strides=1))
         model.add(Conv1D(50, 5, activation='relu', strides=1))
@@ -133,7 +136,7 @@ class Seq2Point(Disaggregator):
                 new_mains = mains.values.flatten()
                 n = self.sequence_length
                 units_to_pad = n // 2
-                new_mains = np.pad(new_mains,(units_to_pad,units_to_pad),'constant',constant_values=(0,0))
+                new_mains = np.pad(new_mains, (units_to_pad, units_to_pad), 'constant', constant_values=(0, 0))
                 new_mains = np.array([new_mains[i:i + n] for i in range(len(new_mains) - n + 1)])
                 new_mains = (new_mains - self.mains_mean) / self.mains_std
                 mains_df_list.append(pd.DataFrame(new_mains))
@@ -144,7 +147,7 @@ class Seq2Point(Disaggregator):
                     app_mean = self.appliance_params[app_name]['mean']
                     app_std = self.appliance_params[app_name]['std']
                 else:
-                    print ("Parameters for ", app_name ," were not found!")
+                    print("Parameters for ", app_name, " were not found!")
                     raise ApplianceNotFoundError()
 
                 processed_appliance_dfs = []
@@ -152,7 +155,7 @@ class Seq2Point(Disaggregator):
                 for app_df in app_df_list:
                     new_app_readings = app_df.values.reshape((-1, 1))
                     # This is for choosing windows
-                    new_app_readings = (new_app_readings - app_mean) / app_std  
+                    new_app_readings = (new_app_readings - app_mean) / app_std
                     # Return as a list of dataframe
                     processed_appliance_dfs.append(pd.DataFrame(new_app_readings))
                 appliance_list.append((app_name, processed_appliance_dfs))
@@ -166,19 +169,19 @@ class Seq2Point(Disaggregator):
                 new_mains = mains.values.flatten()
                 n = self.sequence_length
                 units_to_pad = n // 2
-                new_mains = np.pad(new_mains,(units_to_pad,units_to_pad),'constant',constant_values=(0,0))
+                new_mains = np.pad(new_mains, (units_to_pad, units_to_pad), 'constant', constant_values=(0, 0))
                 new_mains = np.array([new_mains[i:i + n] for i in range(len(new_mains) - n + 1)])
                 new_mains = (new_mains - self.mains_mean) / self.mains_std
                 mains_df_list.append(pd.DataFrame(new_mains))
             return mains_df_list
 
-    def set_appliance_params(self,train_appliances):
+    def set_appliance_params(self, train_appliances):
         # Find the parameters using the first
-        for (app_name,df_list) in train_appliances:
-            l = np.array(pd.concat(df_list,axis=0))
+        for (app_name, df_list) in train_appliances:
+            l = np.array(pd.concat(df_list, axis=0))
             app_mean = np.mean(l)
             app_std = np.std(l)
-            if app_std<1:
+            if app_std < 1:
                 app_std = 100
-            self.appliance_params.update({app_name:{'mean':app_mean,'std':app_std}})
-        print (self.appliance_params)
+            self.appliance_params.update({app_name: {'mean': app_mean, 'std': app_std}})
+        print(self.appliance_params)

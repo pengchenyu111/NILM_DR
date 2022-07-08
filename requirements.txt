@@ -21,7 +21,6 @@ c-ares=1.18.1=h8ffe710_0
 ca-certificates=2022.6.15=h5b45459_0
 cached-property=1.5.2=hd8ed1ab_1
 cached_property=1.5.2=pyha770c72_1
-certifi=2022.6.15=pypi_0
 cffi=1.15.0=py37hd8e9650_0
 charset-normalizer=2.0.12=pyhd8ed1ab_0
 colorama=0.4.5=pyhd8ed1ab_0
@@ -32,7 +31,6 @@ cycler=0.11.0=pyhd8ed1ab_0
 debugpy=1.6.0=py37hf2a7229_0
 decorator=5.1.1=pyhd8ed1ab_0
 defusedxml=0.7.1=pyhd8ed1ab_0
-docopt=0.6.2=pypi_0
 ecos=2.0.10=py37hec80d1f_0
 entrypoints=0.4=pyhd8ed1ab_0
 flit-core=3.7.1=pyhd8ed1ab_0
@@ -114,7 +112,6 @@ pandocfilters=1.5.0=pyhd8ed1ab_0
 parso=0.8.3=pyhd8ed1ab_0
 pickleshare=0.7.5=py_1003
 pip=21.2.4=py37haa95532_0
-pipreqs=0.4.11=pypi_0
 prometheus_client=0.14.1=pyhd8ed1ab_0
 prompt-toolkit=3.0.29=pyha770c72_0
 protobuf=3.20.1=py37h03978a9_0
@@ -179,7 +176,6 @@ winpty=0.4.3=4
 wrapt=1.14.1=py37hcc03f2d_0
 xz=5.2.5=h62dcd97_1
 yaml=0.2.5=h8ffe710_2
-yarg=0.1.9=pypi_0
 zeromq=4.3.4=h0e60522_1
 zipp=3.8.0=pyhd8ed1ab_0
 zlib=1.2.12=h8ffe710_1
