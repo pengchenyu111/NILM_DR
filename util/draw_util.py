@@ -98,6 +98,20 @@ def show_building_period_data(data, building_no, start, end):
     plt.xlabel("Time")
     plt.show()
 
+def show_building_appliance_period_data(data, building_no, appliance, start, end):
+    """
+    绘制某个家庭某个时间段的某个电器使用情况
+    :param building_no:
+    :param start:
+    :param end:
+    :return:
+    """
+    data.set_window(start=start, end=end)
+    plt.figure(figsize=(30, 10))
+    data.buildings[building_no].elec[appliance].plot()
+    plt.xlabel("Time")
+    plt.show()
+
 
 def show_pie_appliance_enery_consumption(data, building_no):
     """
