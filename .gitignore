@@ -9,6 +9,7 @@ __pycache__/
 *.h5
 *.csv
 *.pdf
+/nilm_algorithm/nn/model_trained/
 
 # C extensions
 *.so
@@ -134,3 +135,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/nilm_algorithm/nn/model_trained/s2q/
