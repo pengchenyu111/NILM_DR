@@ -16,7 +16,7 @@ train_start_time = '2019-05-18'  # 训练集开始时间，包含
 train_end_time = '2019-06-01'  # 训练集结束时间，不包含
 test_start_time = '2019-06-01'  # 训练集开始时间，包含
 test_end_time = '2019-06-02'  # 训练集结束时间，不包含
-sample_period = 60  # 采样频率，几秒一次
+sample_period = 10  # 采样频率，几秒一次
 target_appliances = ['freezer', 'electric vehicle', 'sockets', 'electric water heating appliance', 'air conditioner']
 
 # 加载训练用数据集
@@ -60,7 +60,7 @@ for idx, app in enumerate(appliances_train_df_list):
     print('*******start training {}************'.format(target_appliances[idx]))
     model.compile(loss='mse', optimizer='adam')
 
-    checkpoint = ModelCheckpoint('./s2q/{}_{}s.tf'.format(target_appliances[idx], sample_period),
+    checkpoint = ModelCheckpoint('./model_trained/s2q/{}_{}s.tf'.format(target_appliances[idx], sample_period),
                                  save_format='tf', monitor='val_loss',
                                  verbose=1, save_best_only=True,
                                  mode='min')
@@ -73,7 +73,7 @@ for idx, app in enumerate(appliances_train_df_list):
         callbacks=[checkpoint])
 
     model.summary()
-    model.save_weights('./s2q_{}_{}s.h5'.format(target_appliances[idx], sample_period))
+    model.save_weights('./model_trained/s2q_{}_{}s.h5'.format(target_appliances[idx], sample_period))
 
 print('************start test**************')
 test_data = DataSet('../../data/DATAPORT/newyork/dataport_newyork_1s.h5')
@@ -90,7 +90,7 @@ new_test_df = scaler.fit_transform(new_test_df)
 new_test_df = np.array([new_test_df[i:i + sequence_length] for i in range(len(new_test_df) - sequence_length + 1)])
 
 for idx_t, app in enumerate(target_appliances):
-    model.load_weights('./s2q/{}_{}s.tf'.format(app, sample_period))
+    model.load_weights('./model_trained/s2q/{}_{}s.tf'.format(app, sample_period))
     test_app_df = next(test_data.buildings[building_no].elec[app].load(physical_quantity='power', ac_type='active',
                                                                        sample_period=sample_period))
     test_app_df.columns = ['active_power']
