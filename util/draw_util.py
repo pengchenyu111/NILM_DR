@@ -98,6 +98,7 @@ def show_building_period_data(data, building_no, start, end):
     plt.xlabel("Time")
     plt.show()
 
+
 def show_building_appliance_period_data(data, building_no, appliance, start, end):
     """
     绘制某个家庭某个时间段的某个电器使用情况
@@ -113,7 +114,7 @@ def show_building_appliance_period_data(data, building_no, appliance, start, end
     plt.show()
 
 
-def show_pie_appliance_enery_consumption(data, building_no):
+def show_pie_appliance_enery_consumption(data, building_no, save_path):
     """
     展示一个家庭的电器耗电饼图
     :param data:
@@ -126,6 +127,7 @@ def show_pie_appliance_enery_consumption(data, building_no):
     plt.figure(figsize=(10, 10))
     plt.title("building{}电器耗电分布图".format(building_no))
     fraction.plot(kind='pie', labels=labels)
+    plt.savefig(save_path)
     plt.show()
 
 
@@ -140,4 +142,3 @@ def show_top_k_appliance_each_building(data, building_no, k):
     print("************building{}*************".format(building_no))
     for appliance in appliance_list:
         print("building[{}]----{}".format(building_no, appliance.identifier.type))
-
