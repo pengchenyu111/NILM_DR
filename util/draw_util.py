@@ -84,6 +84,20 @@ def draw_metrics(methods, appliances, metrics, errors):
         plt.show()
 
 
+def show_building_period_main_data(data, building_no, start, end):
+    """
+    绘制某个家庭某个时间段的总表情况
+    :param building_no:
+    :param start:
+    :param end:
+    :return:
+    """
+    data.set_window(start=start, end=end)
+    plt.figure(figsize=(30, 10))
+    data.buildings[building_no].elec.mains().plot()
+    plt.xlabel("Time")
+    plt.show()
+
 def show_building_period_data(data, building_no, start, end):
     """
     绘制某个家庭某个时间段的电器使用情况
@@ -142,3 +156,21 @@ def show_top_k_appliance_each_building(data, building_no, k):
     print("************building{}*************".format(building_no))
     for appliance in appliance_list:
         print("building[{}]----{}".format(building_no, appliance.identifier.type))
+
+
+def draw_true_pre_compare(app, true_val, pre_val):
+    """
+    绘制真实值和预测值的折线图
+    :param app: 电器名
+    :param true_val: 真实值
+    :param pre_val: 预测值
+    :return:
+    """
+    plt.figure(figsize=(15, 10))
+    plt.plot(true_val, color='r', linestyle='-.', label='True value')
+    plt.plot(pre_val, color='steelblue', linestyle='-.', label='Predict value')
+    plt.xlabel("Time")
+    plt.ylabel("Power(W)")
+    plt.title('{} Ture and Predict value result'.format(app))
+    plt.legend(loc='upper left')
+    plt.show()
