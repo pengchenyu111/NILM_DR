@@ -1,23 +1,35 @@
 from tensorflow.keras.callbacks import ModelCheckpoint
 
+from nilm_algorithm.nn.GRU_Attention import GRU_Attention
 from nilmtk import DataSet
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 from nilm_algorithm.nn.s2p import Seq2Point
 from nilmtk.losses import rmse, mae, sae, mr
+import util.draw_util as du
 
 """
     多种时间步长预测精度结果比较
 """
+
 
 building_no = 1  # 家庭编号
 train_start_time = '2019-05-18'  # 训练集开始时间，包含
 train_end_time = '2019-06-01'  # 训练集结束时间，不包含
 test_start_time = '2019-06-01'  # 训练集开始时间，包含
 test_end_time = '2019-06-02'  # 训练集结束时间，不包含
-sample_period = 10  # 采样频率，几秒一次
+sample_period = 60  # 采样频率，几秒一次
 target_appliances = ['freezer', 'electric vehicle', 'sockets', 'electric water heating appliance', 'air conditioner']
+
+# building_no = 4  # 家庭编号
+# train_start_time = '2019-05-18'  # 训练集开始时间，包含
+# train_end_time = '2019-05-25'  # 训练集结束时间，不包含
+# test_start_time = '2019-05-30'  # 训练集开始时间，包含
+# test_end_time = '2019-05-31'  # 训练集结束时间，不包含
+# sample_period = 1  # 采样频率，几秒一次
+# target_appliances = ['electric vehicle', 'electric water heating appliance', 'electric space heater', 'spin dryer', 'stove']
+
 
 # 加载训练用数据集
 train_data = DataSet('../../data/DATAPORT/newyork/dataport_newyork_1s.h5')
@@ -37,6 +49,7 @@ for ta in target_appliances:
     appliance_df = next(train_data.buildings[building_no].elec[ta].load(physical_quantity='power', ac_type='active',
                                                                         sample_period=sample_period))
     appliance_df.columns = ['active_power']
+    appliance_df['active_power'] = appliance_df['active_power'].apply(lambda x: x if x >= 0 else 0)
     appliances_train_df_list.append(appliance_df.values)
     appliances_train_scaler_list.append(scaler.fit_transform(appliance_df))
 
@@ -55,15 +68,17 @@ new_mains_df = scaler.fit_transform(new_mains_df)
 new_mains_df = np.array([new_mains_df[i:i + sequence_length] for i in range(len(new_mains_df) - sequence_length + 1)])
 
 model = Seq2Point(sequence_length)
+# model = GRU_Attention(sequence_length)
 
 for idx, app in enumerate(appliances_train_df_list):
     print('*******start training {}************'.format(target_appliances[idx]))
     model.compile(loss='mse', optimizer='adam')
 
-    checkpoint = ModelCheckpoint('./model_trained/s2q/{}_{}s.tf'.format(target_appliances[idx], sample_period),
-                                 save_format='tf', monitor='val_loss',
-                                 verbose=1, save_best_only=True,
-                                 mode='min')
+    checkpoint = ModelCheckpoint(
+        './model_trained/s2q/building_{}/{}_{}s.tf'.format(building_no, target_appliances[idx], sample_period),
+        save_format='tf', monitor='val_loss',
+        verbose=1, save_best_only=True,
+        mode='min')
     model.fit(
         x=new_mains_df,
         y=appliances_train_df_list[idx],
@@ -73,7 +88,8 @@ for idx, app in enumerate(appliances_train_df_list):
         callbacks=[checkpoint])
 
     model.summary()
-    model.save_weights('./model_trained/s2q_{}_{}s.h5'.format(target_appliances[idx], sample_period))
+    model.save_weights(
+        './model_trained/s2q/building_{}/{}_{}s.h5'.format(building_no, target_appliances[idx], sample_period))
 
 print('************start test**************')
 test_data = DataSet('../../data/DATAPORT/newyork/dataport_newyork_1s.h5')
@@ -90,13 +106,17 @@ new_test_df = scaler.fit_transform(new_test_df)
 new_test_df = np.array([new_test_df[i:i + sequence_length] for i in range(len(new_test_df) - sequence_length + 1)])
 
 for idx_t, app in enumerate(target_appliances):
-    model.load_weights('./model_trained/s2q/{}_{}s.tf'.format(app, sample_period))
+    model.load_weights('./model_trained/s2q/building_{}/{}_{}s.tf'.format(building_no, app, sample_period))
     test_app_df = next(test_data.buildings[building_no].elec[app].load(physical_quantity='power', ac_type='active',
                                                                        sample_period=sample_period))
     test_app_df.columns = ['active_power']
-    print('************start predict {}---{} **************'.format(app,sample_period))
+    test_app_df['active_power'] = test_app_df['active_power'].apply(lambda x: x if x >= 0 else 0)
+    print('************start predict {}---{} **************'.format(app, sample_period))
     test_res_pre = model.predict(new_test_df, batch_size=1)
+    test_res_pre = np.maximum(test_res_pre, 0)
     print('RMSE===>{}'.format(rmse(test_app_df.values, test_res_pre)))
     print('MAE===>{}'.format(mae(test_app_df.values, test_res_pre)))
     print('SAE===>{}'.format(sae(test_app_df.values, test_res_pre)))
     print('MR===>{}'.format(mr(test_app_df.values, test_res_pre)))
+    # 绘制预测结果
+    du.draw_true_pre_compare(app, test_app_df.values, test_res_pre)

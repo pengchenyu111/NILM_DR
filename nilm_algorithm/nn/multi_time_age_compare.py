@@ -1,30 +1,35 @@
 from tensorflow.keras.callbacks import ModelCheckpoint
-
 from nilmtk import DataSet
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 from nilm_algorithm.nn.s2p import Seq2Point
 from nilmtk.losses import rmse, mae, sae, mr
+import util.draw_util as du
 
 """
     信息时效性对预测精度结果比较
 """
 
-building_no = 1  # 家庭编号
-train_start_time = '2019-05-18'  # 训练集开始时间，包含
-train_end_time = '2019-07-19'  # 训练集结束时间，不包含
-test_start_time = '2019-09-18'  # 训练集开始时间，包含
-test_end_time = '2019-09-19'  # 训练集结束时间，不包含
+building_no = 4  # 家庭编号
+train_start_time = '2019-05-23'  # 训练集开始时间，包含
+train_end_time = '2019-05-30'  # 训练集结束时间，不包含
+test_start_time = '2019-07-18'  # 训练集开始时间，包含
+test_end_time = '2019-07-19'  # 训练集结束时间，不包含
 sample_period = 60  # 采样频率，几秒一次
-target_appliances = ['freezer', 'electric vehicle', 'sockets', 'electric water heating appliance', 'air conditioner']
+# building_1
+# target_appliances = ['freezer', 'electric vehicle', 'sockets', 'electric water heating appliance', 'air conditioner']
+# building_20
+# target_appliances = ['fridge', 'electric vehicle', 'spin dryer', 'stove', 'electric water heating appliance']
+# building_4
+target_appliances = ['electric vehicle', 'electric water heating appliance', 'electric space heater', 'spin dryer', 'stove']
+
 
 scaler = StandardScaler()
 
 # 加载训练用数据集
 train_data = DataSet('../../data/DATAPORT/newyork/dataport_newyork_1s.h5')
 train_data.set_window(start=train_start_time, end=train_end_time)
-
 
 # 总功率
 train_main_df = next(train_data.buildings[building_no].elec.mains().load(physical_quantity='power', ac_type='active',
@@ -38,6 +43,7 @@ for ta in target_appliances:
     appliance_df = next(train_data.buildings[building_no].elec[ta].load(physical_quantity='power', ac_type='active',
                                                                         sample_period=sample_period))
     appliance_df.columns = ['active_power']
+    appliance_df['active_power'] = appliance_df['active_power'].apply(lambda x: x if x >= 0 else 0)
     appliances_train_df_list.append(appliance_df.values)
     appliances_train_scaler_list.append(scaler.fit_transform(appliance_df))
 
@@ -62,7 +68,7 @@ for idx, app in enumerate(appliances_train_df_list):
     model.compile(loss='mse', optimizer='adam')
 
     checkpoint = ModelCheckpoint(
-        './model_trained/time_age/{}_{}_{}.tf'.format(target_appliances[idx], test_start_time, test_end_time),
+        './model_trained/time_age/{}_{}_{}.tf'.format(target_appliances[idx], train_start_time, train_end_time),
         save_format='tf', monitor='val_loss',
         verbose=1, save_best_only=True,
         mode='min')
@@ -76,7 +82,7 @@ for idx, app in enumerate(appliances_train_df_list):
 
     model.summary()
     model.save_weights(
-        './model_trained/time_age/{}_{}_{}.h5'.format(target_appliances[idx], test_start_time, test_end_time))
+        './model_trained/time_age/{}_{}_{}.h5'.format(target_appliances[idx], train_start_time, train_end_time))
 
 print('************start test**************')
 test_data = DataSet('../../data/DATAPORT/newyork/dataport_newyork_1s.h5')
@@ -93,13 +99,18 @@ new_test_df = scaler.fit_transform(new_test_df)
 new_test_df = np.array([new_test_df[i:i + sequence_length] for i in range(len(new_test_df) - sequence_length + 1)])
 
 for idx_t, app in enumerate(target_appliances):
-    model.load_weights('./model_trained/time_age/{}_{}_{}.tf'.format(app, test_start_time, test_end_time))
+    model.load_weights('./model_trained/time_age/{}_{}_{}.tf'.format(app, train_start_time, train_end_time))
+    # model.load_weights('./model_trained/time_age/{}_2019-06-01_2019-06-02.tf'.format(app, test_start_time, test_end_time))
     test_app_df = next(test_data.buildings[building_no].elec[app].load(physical_quantity='power', ac_type='active',
                                                                        sample_period=sample_period))
     test_app_df.columns = ['active_power']
-    print('************start predict {}---{}---{} **************'.format(app, test_start_time, test_end_time))
+    test_app_df['active_power'] = test_app_df['active_power'].apply(lambda x: x if x >= 0 else 0)
+    print('************start predict {}---{}---{} **************'.format(app, train_start_time, train_end_time))
     test_res_pre = model.predict(new_test_df, batch_size=1)
+    test_res_pre = np.maximum(test_res_pre, 0)
     print('RMSE===>{}'.format(rmse(test_app_df.values, test_res_pre)))
     print('MAE===>{}'.format(mae(test_app_df.values, test_res_pre)))
     print('SAE===>{}'.format(sae(test_app_df.values, test_res_pre)))
     print('MR===>{}'.format(mr(test_app_df.values, test_res_pre)))
+    # 绘制预测结果
+    du.draw_true_pre_compare(app, test_app_df.values, test_res_pre)
