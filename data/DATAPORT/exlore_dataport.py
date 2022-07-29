@@ -38,20 +38,34 @@ print('*******************************')
 # du.show_top_k_appliance_each_building(data=data, building_no=2, k=5)
 
 # du.show_pie_appliance_enery_consumption(data=data, building_no=1)
-# du.show_building_appliance_period_data(data=data, building_no=1, appliance='freezer', start='2019-05-18', end='2019-07-18')
-du.show_building_appliance_period_data(data=data, building_no=1, appliance='electric vehicle', start='2019-05-18', end='2019-06-01')
-# du.show_building_appliance_period_data(data=data, building_no=1, appliance='sockets', start='2019-05-18', end='2019-07-18')
-du.show_building_appliance_period_data(data=data, building_no=1, appliance='electric water heating appliance', start='2019-05-18', end='2019-06-01')
-# du.show_building_appliance_period_data(data=data, building_no=1, appliance='air conditioner', start='2019-05-18', end='2019-07-18')
+# du.show_building_appliance_period_data(data=data, building_no=1, appliance='freezer', start='2019-08-01', end='2019-08-02')
+# du.show_building_appliance_period_data(data=data, building_no=1, appliance='electric vehicle', start='2019-08-01', end='2019-08-02')
+# du.show_building_appliance_period_data(data=data, building_no=1, appliance='sockets', start='2019-08-01', end='2019-08-02')
+# du.show_building_appliance_period_data(data=data, building_no=1, appliance='electric water heating appliance', start='2019-08-01', end='2019-08-02')
+# du.show_building_appliance_period_data(data=data, building_no=1, appliance='air conditioner', start='2019-08-01', end='2019-08-02')
 
 
-# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric space heater', start='2019-05-18', end='2019-09-01')
-# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric vehicle', start='2019-05-18', end='2019-09-01')
-# du.show_building_appliance_period_data(data=data, building_no=4, appliance='spin dryer', start='2019-05-18', end='2019-09-01')
-# du.show_building_appliance_period_data(data=data, building_no=4, appliance='stove', start='2019-05-18', end='2019-09-01')
-# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric water heating appliance', start='2019-05-18', end='2019-09-01')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric space heater', start='2019-07-18', end='2019-07-19')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric vehicle', start='2019-07-18', end='2019-07-19')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='spin dryer', start='2019-07-18', end='2019-07-19')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='stove', start='2019-07-18', end='2019-07-19')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric water heating appliance', start='2019-07-18', end='2019-07-19')
 
 
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric space heater', start='2019-07-22', end='2019-07-31')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric vehicle', start='2019-07-22', end='2019-07-31')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='spin dryer', start='2019-07-22', end='2019-07-31')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='stove', start='2019-07-22', end='2019-07-31')
+# du.show_building_appliance_period_data(data=data, building_no=4, appliance='electric water heating appliance', start='2019-07-22', end='2019-07-31')
+
+# building_20
+# du.show_building_appliance_period_data(data=data, building_no=20, appliance='fridge', start='2019-05-18', end='2019-05-26')
+# du.show_building_appliance_period_data(data=data, building_no=20, appliance='electric vehicle', start='2019-05-18', end='2019-05-26')
+# du.show_building_appliance_period_data(data=data, building_no=20, appliance='spin dryer', start='2019-05-18', end='2019-05-26')
+# du.show_building_appliance_period_data(data=data, building_no=20, appliance='stove', start='2019-05-18', end='2019-05-26')
+# du.show_building_appliance_period_data(data=data, building_no=20, appliance='electric water heating appliance', start='2019-05-18', end='2019-05-26')
+
+du.show_building_period_main_data(data=data,building_no=20,start='2019-05-18', end='2019-06-01')
 
 # 显示各家庭用电分布
 # for i in range(len(data.buildings)):
