@@ -61,3 +61,26 @@ def time_offset_converter(df, target_time_period=60, abnormal_rate=0.3, offset_l
     res_df.columns = ['datetime', 'active_power']
     res_df.set_index('datetime', inplace=True)
     return res_df
+
+
+def time_offset_converter_2(df, abnormal_rate, offset_width):
+    res_df = df.copy()
+    data_length = len(df)
+    idx_list = [idx for idx in range(0, data_length)]
+    abnormal_idx = random.sample(idx_list, int(len(idx_list) * abnormal_rate))
+    for cur_idx in tqdm(abnormal_idx):
+        # 是往前偏移还是往后偏移
+        offset_direction_flag = random.randint(0, 1)  # 0往前 1往后
+        # 偏移幅度
+        offset_num = random.randint(1, offset_width)
+        if offset_direction_flag:
+            replace_idx = cur_idx + offset_num
+            if replace_idx >= data_length:
+                replace_idx = data_length - 1
+            res_df.iloc[cur_idx:cur_idx + 1] = df.iloc[replace_idx:replace_idx + 1].values[0][0]
+        else:
+            replace_idx = cur_idx - offset_num
+            if replace_idx < 0:
+                replace_idx = 0
+            res_df.iloc[cur_idx:cur_idx + 1] = df.iloc[replace_idx:replace_idx + 1].values[0][0]
+    return res_df
